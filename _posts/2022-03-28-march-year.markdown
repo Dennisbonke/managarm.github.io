@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Managarm: The Last 18 Months (mid-2021)"
+title: "Managarm: The Last 27 Months (march-2022)"
 excerpt:
 ---
 <span style="font-size: 11pt;">Post by
@@ -15,7 +15,7 @@ and Kacper Słomiński ([@qookei](https://github.com/qookei)).
 ## Introduction
 
 In this post, we will give an update on the progress that the Managarm
-operating system made in the last 18 months, it has been quite a ride!
+operating system made in the last 27 months, it has been quite a ride!
 For readers who are unfamilar with [Managarm](https://github.com/managarm/managarm):
 it is a microkernel-based OS
 that supports asynchronicity throughout the entire system while also providing
@@ -44,9 +44,13 @@ hands-on walk through the system:
 <div style="width: 560px; margin: 0 auto;"><iframe width="560" height="315" src="https://www.youtube.com/embed/qxrC7yJ7CSA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
 <br>
 
+We've also been hosted at **FOSDEM 2022**, where Alexander went over the basics of IPC and the general architecture of the system.
+<div style="width: 560px; margin: 0 auto;"><iframe width="560" height="315" src="https://video.fosdem.org/2022/D.microkernel/agrinten.mp4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+<br>
+
 ## Major Updates
 
-Major updates since our last post include a 64-bit ARM port, support for the [Rust](https://www.rust-lang.org/) programming language in user space, and support for the [xbps package manager](https://github.com/void-linux/xbps).
+Major updates since our last post include a 64-bit ARM port, the start of the RISC-V port, support for the [Rust](https://www.rust-lang.org/) programming language in user space, and support for the [xbps package manager](https://github.com/void-linux/xbps).
 
 Another important addition is our
 [handbook](https://docs.managarm.org/handbook) that describes parts of the
@@ -78,7 +82,7 @@ In the long term, we would like to support Rust drivers for Managarm. This will 
 
 ### Build Servers and xbps Packages
 
-Last year, we deployed [xbbs](https://github.com/managarm/xbbs), a distributed build server specifically crafted for [xbstrap](https://github.com/managarm/xbstrap) and [xbps](https://github.com/void-linux/xbps). It allows us to efficiently and effectively split building a managarm distribution across a handful of servers and to only update parts of the distribution we changed. This has allowed us to come closer to our goal of porting and utilizing xbps for managing system packages in our distribution images. You can use it today to get packages built by us on https://ci.managarm.org/ but you cannot use it in the system itself with xbps just yet, although work is ongoing to fix that.
+Two years ago, we deployed [xbbs](https://github.com/managarm/xbbs), a distributed build server specifically crafted for [xbstrap](https://github.com/managarm/xbstrap) and [xbps](https://github.com/void-linux/xbps). It allows us to efficiently and effectively split building a managarm distribution across a handful of servers and to only update parts of the distribution we changed. This has allowed us to come closer to our goal of porting and utilizing xbps for managing system packages in our distribution images. You can use it today to get packages built by us on https://builds.managarm.org/ but you cannot use it in the system itself with xbps just yet, although work is ongoing to fix that.
 
 The goals of this "subproject" include:
 
@@ -111,67 +115,39 @@ going into detail about it.
 
 ## New Ports and Port Updates
 
-In the last year, we received a lot of new and sometimes updated ports, our
-collection contains over 150 ports now! A lot of the ports are various
-basic programs, such as common UNIX utilities like `grep`, `sed`, `findutils` and
-`gawk`, development tools like `python`, `make` and `patch`
-and system packages such as `util-linux`.
-We finally have enough
-of the X11 stack ported that we can run XWayland and several X11-based apps like
-`xclock` and `glxgears`.
+In the last two years, we received a lot of new and sometimes updated ports, our collection contains over 200 ports now! A lot of the ports are various nice to have things, such as common unix utilities like `grep`, `sed`, `findutils` and `gawk`, development tools like `python`, `make` and `patch` and we got enough of the X11 stack ported that we can run XWayland and several X based apps like `xclock` and `gtklife`. Another noteworthy thing to mention here is the addition of a new bootloader called [limine](https://limine-bootloader.org/), which we now use by default (although `grub` is still supported at this time and there are no plans to remove that support) and the addition of a stripped down `util-linux` port, which includes useful utilities like `mount` and `losetup`. A final mention goes to some Rust ports as mentioned above.
+As a blog post without images would be boring, here are some screenshots, first off is Managarm running `python`.
+![python](/assets/2022-march-year-update/python.png)
+After that, we have `xclock`.
+![xclock](/assets/2022-march-year-update/xclock.png)
+And finally we have `exa` running.
+![exa](/assets/2022-march-year-update/exa.png)
 
-![xclock](/assets/2021-mid-year/xclock.png)
+### The road to X11
+The road to X11 was quite a bumpy one, with several issues that required digging deep in the X11 codebase to figure out. In the end, the biggest issues were a nasty epoll bug and the usage of abstract unix sockets, that weren't implemented. With that fixed (and a small amount of stubbing of shared memory functions in mlibc) we were able to run the `gtk-demo` demo program succesfully, paving the way for various other X based programs.
+![gtk2](/assets/2022-march-year-update/gtk2.png)
 
-The road to X11 was quite a bumpy one, with several issues that required
-digging deep in the X.org codebase to figure out. In the end, the biggest issues
-were a nasty epoll bug and the usage of abstract unix sockets, that weren't
-implemented. With that fixed (and a small amount of stubbing of shared memory
-functions in mlibc) we were able to run basic demo
-programs succesfully, paving the way for various other X11-based programs, like
-`gtklife`, which is based on `gtk+2`.
+Outside of XWayland, work is ongoing to also run the classic X.Org server, using its modesetting drivers.
 
-![gtklife](/assets/2021-mid-year/gtklife.png)
+### QEMU
+Most of the pieces necessary for QEMU have already been in place, with the exception of `sigaltstack` and partial `munmap`/`mmap`/`mprotect` support. With both of these missing features implemented, we can run QEMU on Managarm, bringing us one step closer to being self-hosting.
 
-Finally, another noteworthy change to our distribution is the
-addition of the [Limine bootloader](https://limine-bootloader.org/),
-which we now use by default. (`grub` is still supported at this time
-and there are no plans to remove that support.)
+![qemu](/assets/2022-march-year-update/qemu.png)
 
-## What do we want to achieve in the remainder of 2021?
+### DOOM
+Until recently, we didn't have any DOOM port, mainly because we couldn't decide on which source port to use. We eventually decided upon dsda-doom, giving us a modern, yet vanilla DOOM experience, with extra speedrunning features as a bonus.
 
-**Improving stability of the core system.** While the stability of the kernel
-has definitively improved over the past 18 months, there are still a lot of
-places where it is relatively easy to crash a server. We want to address at
-least some of these issues and expand our testing to catch them quicker.
+![doom](/assets/2022-march-year-update/doom.png)
 
-**Finish the package manager.** In the past months, considerable work went into
-porting a package manager. While the general infrastructure, both inside
-Managarm and outside in terms of an repository, are set up, some more work is
-required to actually get `xbps` to function properly. We aim to implement the
-missing functionality soon.
+## What do we want to achieve in 2022?
 
-**Polish the port collection.** Currently, we have a lot of ports that work at
-least partially, but some use some pretty ugly hacks to get to that state. We
-should strive to get the quality of some of those ports up by implementing the
-proper functionality and not relying on hacks.
+**Finish porting the package manager.** In the past months, considerable work went into porting a package manager. While the general infrastructure, both inside Managarm and outside in terms of an repository, are set up, some more work is required to actually get `xbps` to function properly. We aim to implement the missing functionality soon.
 
-**Work towards self hosting and improve usefulness.** We have come a long way
-towards self hosting and the general usefulness the last 18 months, but some
-important pieces are still missing. We are still missing some python support to
-run our build system, `xbstrap`, and we also need to port the `clang` compiler
-in order to properly compile the kernel. As usefulness goes, with most of the
-common terminal utilities available, attention shifts to the gui department.
-While a modern browser like `firefox` would be amazing to have by the end of
-the year, that is probably a step too far with the remaining time. Still, work
-is ongoing to port a browser and an irc client, improving usefulness.
+**Polish the port collection.** Currently, we have a lot of ports that work at least partially, but some use some pretty ugly hacks to get to that state. We should strive to get the quality of some of those ports up by implementing the proper functionality and not relying on hacks. This mostly means implementing missing functionality and testing for correctness. We also plan to start upstreaming support patches so that we can remove some patches from the collection.
 
-**Better support for real hardware.** In general, managarm can boot on real
-hardware just fine. Problems arise mostly due to bugs in USB host controller
-drivers and sometimes due to unimplemented AML opcodes or weird AML in LAI. In
-2021 we should complete the support of all AML opcodes in LAI (there are only a
-handful left) and harden it against malformed AML in an attempt to come closer
-to ACPICA. We should also test on more real machines and fix the remaining USB
-bugs.
+**Complete TTY subsystem.** We currently lack or incorrectly implement many TTY subsystem features (sessions and signals, process groups, et cetera), which are quite necessary for many kinds of programs as well as day-to-day life using the system. This goal is also accompanied by finishing up Unix process credentials and signals. Help is *definitely* wanted with this problem.
+
+Some remaining goals from last time include porting more software, especially to self-host, improving the blockdev stack, making the system generally more stable and improving the netstack, especially the TCP implementation; and, of course, there is always more hardware to improve support for.
 
 ## Help Wanted!
 
