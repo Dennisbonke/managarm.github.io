@@ -1,0 +1,22 @@
+---
+layout: post
+title: "Running Epiphany"
+---
+<span style="font-size: 11pt;">Post written by [Dennis Bonke](https://github.com/Dennisbonke).</span>
+
+## Introduction
+
+Managarm is an asynchronous microkernel-based operating system that aims for source-level compatibility with Linux software. Over time, this compatibility has grown to cover increasingly complex desktop applications and frameworks. We recently reached another milestone: running [GNOME Web, also known as Epiphany](https://apps.gnome.org/Epiphany/), on Managarm.
+
+<!-- Managarm is an asynchronous microkernel-based operating system.  -->
+
+## Supported by NLnet
+
+[This project](https://nlnet.nl/project/Managarm/) was funded through the [NGI0 Commons Fund](https://nlnet.nl/commonsfund/), a fund established by [NLnet](https://nlnet.nl) with financial support from the European Commission’s Next Generation Internet programme, under the aegis of DG Communications Networks, Content and Technology under grant agreement No 101135429. Additional funding is made available by the Swiss State Secretariat for Education, Research and Innovation (SERI).
+
+<img src="/assets/2026-epiphany/nlnet.svg" alt="NLnet logo" width="200" style="display: inline-block; margin-right: 10px; margin-bottom: 10px;" />
+<img src="/assets/2026-epiphany/NGI0Commons.svg" alt="NGI0 Commons logo" width="200" style="display: inline-block; margin-bottom: 10px;" />
+
+## Talk to us
+
+We welcome contributions to Managarm! If you want to help out, feel free to look at [our issue tracker](https://github.com/managarm/managarm/issues), or chat with us on [Discord](https://discord.gg/7WB6Ur3) or IRC in `#managarm` on `irc.libera.chat` about ideas.
